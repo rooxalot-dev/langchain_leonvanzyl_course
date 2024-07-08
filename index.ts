@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
 const start = async () => {
     // OpenAI Key is on env
@@ -13,15 +14,15 @@ const start = async () => {
     });
 
     const templatePrompt = ChatPromptTemplate.fromTemplate(`
-        You are a comedian. Tell me a joke based on the following word: {inputWord}
+        You are a comedian. Tell me a joke on 2 two lines or more, based on the following word: {inputWord}
     `);
+    const stringParser = new StringOutputParser();
 
-    const chain = templatePrompt.pipe(model);
-    const aiChainResponse = await chain.invoke({ inputWord: 'Amazon' });
-    const usedTokens = aiChainResponse.usage_metadata?.total_tokens;
-    const content = aiChainResponse.content;
+    const chain = templatePrompt.pipe(model).pipe(stringParser);
+    const aiChainStringResponse = await chain.invoke({ inputWord: 'Amazon' });
 
-    console.log(`Used Tokens: ${usedTokens} - Content: ${content}`);
+    console.log(aiChainStringResponse);
+    //console.log(`Used Tokens: ${usedTokens} - Content: ${content}`);
 };
 
 start();
