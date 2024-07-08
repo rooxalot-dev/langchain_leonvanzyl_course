@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { StringOutputParser } from '@langchain/core/output_parsers';
+import { StringOutputParser, CommaSeparatedListOutputParser } from '@langchain/core/output_parsers';
 
 const start = async () => {
     // OpenAI Key is on env
@@ -13,16 +13,32 @@ const start = async () => {
         verbose: false // debug
     });
 
-    const templatePrompt = ChatPromptTemplate.fromTemplate(`
-        You are a comedian. Tell me a joke on 2 two lines or more, based on the following word: {inputWord}
-    `);
-    const stringParser = new StringOutputParser();
+    async function callStringOutputParser() {
+        const templatePrompt = ChatPromptTemplate.fromTemplate(`
+            You are a comedian. Tell me a joke on two lines or more, based on the following word: {inputWord}. Never return less than two line.
+        `);
+        const stringParser = new StringOutputParser();
+    
+        const chain = templatePrompt.pipe(model).pipe(stringParser);
+        const aiChainStringResponse = await chain.invoke({ inputWord: 'Amazon' });
+    
+        return aiChainStringResponse;
+    }
 
-    const chain = templatePrompt.pipe(model).pipe(stringParser);
-    const aiChainStringResponse = await chain.invoke({ inputWord: 'Amazon' });
+    async function callListOutputParser() {
+        const templatePrompt = ChatPromptTemplate.fromTemplate(`
+            Provide at least 5 synonyms, separated by comma, for the following word: {word}. Never return less than 5 synonyms.
+        `);
+        const listParser = new CommaSeparatedListOutputParser();
+    
+        const chain = templatePrompt.pipe(model).pipe(listParser);
+        const aiChainListResponse = await chain.invoke({ word: 'Door' });
+    
+        return aiChainListResponse;
+    }
 
-    console.log(aiChainStringResponse);
-    //console.log(`Used Tokens: ${usedTokens} - Content: ${content}`);
+    // console.log(await callStringOutputParser());
+    console.log(await callListOutputParser());
 };
 
 start();
