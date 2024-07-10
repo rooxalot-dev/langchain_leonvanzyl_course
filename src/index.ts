@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import { ChatOpenAI } from '@langchain/openai';
-import { callListOutputParser, callStringOutputParser, callStructuredParser } from './output_parsers';
+import { callListOutputParser, callStringOutputParser, callStructuredParser, callZodStructuredParser } from './output_parsers';
 
 const start = async () => {
     // OpenAI Key is on env
@@ -14,7 +14,8 @@ const start = async () => {
 
     //console.log(await callStringOutputParser(model));
     //console.log(await callListOutputParser(model));
-    console.log(await callStructuredParser(model));
+    //console.log(await callStructuredParser(model));
+    console.log(await callZodStructuredParser(model));
 };
 
 start();
