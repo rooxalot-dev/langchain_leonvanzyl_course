@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsnd --transpile-only index.ts",
-    "dev": "tsnd --respawn --watch --transpile-only index.ts"
+    "start": "tsnd --transpile-only src/index.ts",
+    "dev": "tsnd --respawn --watch --transpile-only src/index.ts"
   },
   "keywords": [],
   "author": "",
