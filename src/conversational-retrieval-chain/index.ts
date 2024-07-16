@@ -6,6 +6,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { createRetrievalChain } from "langchain/chains/retrieval";
+import { createHistoryAwareRetriever } from "langchain/chains/history_aware_retriever";
 
 
 const createVectorStoreFromUrl = async (input: { url: string }) => {
@@ -27,8 +28,22 @@ const createChain = async (model: ChatOpenAI, vectorStore: MemoryVectorStore) =>
         ['user', '{input}'],
     ]);
 
+    // Retriever prompt created to be used in the HistoryAwareRetriever
+    const retrieverPrompt = ChatPromptTemplate.fromMessages([
+        new MessagesPlaceholder('chat_history'),
+        ['user', '{input}'],
+        ['user', 'Given the above conversation, generate a search query to look up in order to get information relevant to the conversation']
+    ]);
+
     const combineDocumentsChain = await createStuffDocumentsChain({ llm: model, prompt });
-    const conversationalChain = await createRetrievalChain({ retriever: vectorStore.asRetriever(), combineDocsChain: combineDocumentsChain });
+
+    // This history aware retriever "buffers" the normal retriever, enabling the documents seach to use both the user input and the chat history to search relevant data
+    const historyAwareRetriever = await createHistoryAwareRetriever({
+        llm: model,
+        retriever: vectorStore.asRetriever(),
+        rephrasePrompt: retrieverPrompt
+    });
+    const conversationalChain = await createRetrievalChain({ retriever: historyAwareRetriever, combineDocsChain: combineDocumentsChain });
 
     return conversationalChain;
 }
