@@ -37,7 +37,7 @@ const createChain = async (model: ChatOpenAI, vectorStore: MemoryVectorStore) =>
 
     const combineDocumentsChain = await createStuffDocumentsChain({ llm: model, prompt });
 
-    // This history aware retriever "buffers" the normal retriever, enabling the documents seach to use both the user input and the chat history to search relevant data
+    // This history aware retriever "buffs" the normal retriever, enabling the documents seach to use both the user input and the chat history to search relevant data
     const historyAwareRetriever = await createHistoryAwareRetriever({
         llm: model,
         retriever: vectorStore.asRetriever(),
