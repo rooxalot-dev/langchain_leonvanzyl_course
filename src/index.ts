@@ -4,6 +4,7 @@ import { ChatOpenAI } from '@langchain/openai';
 import { callListOutputParser, callStringOutputParser, callStructuredParser, callZodStructuredParser } from './output_parsers';
 import { callChatWithDocumentContext } from './retrieval_chains';
 import { callConversationHistoryWithDocumentContext } from './conversational-retrieval-chain';
+import { callAgentWithTools } from './agents';
 
 const start = async () => {
     // OpenAI Key is on env
@@ -19,7 +20,8 @@ const start = async () => {
     //console.log(await callStructuredParser(model));
     //console.log(await callZodStructuredParser(model));
     //console.log(await callChatWithDocumentContext(model));
-    console.log(await callConversationHistoryWithDocumentContext(model));
+    //console.log(await callConversationHistoryWithDocumentContext(model));
+    console.log(await callAgentWithTools(model));
 
 };
 
