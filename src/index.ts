@@ -15,13 +15,15 @@ const start = async () => {
         verbose: false // debug
     });
 
+    const tavilyApiKey = process.env.TAVILY_API_KEY || '';
+
     //console.log(await callStringOutputParser(model));
     //console.log(await callListOutputParser(model));
     //console.log(await callStructuredParser(model));
     //console.log(await callZodStructuredParser(model));
     //console.log(await callChatWithDocumentContext(model));
     //console.log(await callConversationHistoryWithDocumentContext(model));
-    console.log(await callAgentWithTools(model));
+    console.log(await callAgentWithTools(model, tavilyApiKey));
 
 };
 
