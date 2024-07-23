@@ -1,5 +1,6 @@
 import readline from 'readline';
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { BaseMessage, HumanMessage, AIMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
 import { createOpenAIFunctionsAgent, AgentExecutor } from "langchain/agents";
 import { WebBrowser } from "langchain/tools/webbrowser";
@@ -9,6 +10,7 @@ import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 export async function callAgentWithTools(model: ChatOpenAI, tavilyApiKey: string) {
     const prompt = ChatPromptTemplate.fromMessages([
         ['system', `You're a helpful assistant call Max.`],
+        new MessagesPlaceholder('chat_history'),
         ['human', '{input}'],
         new MessagesPlaceholder('agent_scratchpad'), // This placeholer needs to be inserted, since it'll be used internally and automatically by the agent and tools
     ]);
@@ -29,16 +31,22 @@ export async function callAgentWithTools(model: ChatOpenAI, tavilyApiKey: string
     // Create and execute agent
     const agentExecutor = new AgentExecutor({ agent, tools });
 
+    const chatHistory: Array<BaseMessage> = [];
+
+    // Create chatbot-like interation
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
-    
-
     const askQuestion = () => {
         rl.question('User: ', async (question) => {
-            if (question.toLowerCase() === 'exit') rl.close();
+            if (question.toLowerCase() === 'exit') {
+                rl.close();
+                return;
+            }
 
-            const response = await agentExecutor.invoke({ input: question });
+            const response = await agentExecutor.invoke({ input: question, chat_history: chatHistory });
             console.log('Agent: ', response.output);
+
+            chatHistory.push(new HumanMessage(question));
+            chatHistory.push(new AIMessage(response.output));
 
             askQuestion();
         });
